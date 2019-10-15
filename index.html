@@ -21,7 +21,7 @@
         <label for="name" class="col-lg-2 control-label">Name</label>
         <input id="name" type="text">
 
-        <label for="name" class="col-lg-2 control-label">Age</label>
+        <label for="age" class="col-lg-2 control-label">Age</label>
         <input id="age" type="text">
 
         <button id="button">Update Info</button>
@@ -31,35 +31,35 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
-    <script>
-       if (typeof web3 !== 'undefined') {
-            web3 = new Web3(web3.currentProvider);
-        } else {
-            // set the provider you want from Web3.providers
-            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
-        }
+	<script>
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+		}
 
-        web3.eth.defaultAccount = web3.eth.accounts[0];
+		web3.eth.defaultAccount = web3.eth.accounts[0];
+		var infoContract = web3.eth.contract([{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"fName","type":"string"},{"indexed":false,"internalType":"uint256","name":"age","type":"uint256"}],"name":"Instructor","type":"event"},{"constant":false,"inputs":[{"internalType":"string","name":"_fName","type":"string"},{"internalType":"uint256","name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]);
+		var info = infoContract.at("0x70d7CB8771CBd6F8b667fee2D22d4bE5Bd0b6358");
+		var instructorEvent = info.Instructor();
 
-        var infoContract = web3.eth.contract([{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_fName","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]);
+		instructorEvent.watch(function(error, result) {
+			if(!error) {
+				$("#loader").hide();
+				$("#info").html(result.args.fName+' ('+result.args.age+' years old)');
+				console.log(result);
+		    } else {
+				$("#loader").hide();
+				console.error(error);
+			}
+		});
 
-        var info = infoContract.at('0x8cdaf0cd259887258bc13a92c0a6da92698644c0');
-
-        info.getInfo(function(error, result){
-            if(!error)
-                {
-                    $("#info").html(result[0]+' ('+result[1]+' years old)');
-                    console.log(result);
-                }
-            else
-                console.error(error);
-        });
-
-        $("#button").click(function() {
-            info.setInfo($("#name").val(), $("#age").val());
-        });
-
-    </script>
+		$("#button").click(function() {
+			$("#loader").show();
+			info.setInfo($("#name").val(), $("#age").val());
+		});
+	</script>
 
 </body>
 </html>
