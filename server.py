@@ -22,7 +22,6 @@ def listen(event_filter):
     while True:
         for event in event_filter.get_new_entries():
             handle_event(event)
-            # SM2
             time.sleep(2)
 
 event_filter = w3.eth.filter({'fromBlock':'latest', 'address':address})
